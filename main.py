@@ -115,7 +115,7 @@ class ChatWindow(QWidget):
 
         size = os.path.getsize(path)
         bname = os.path.basename(path)[:512]
-        header = 'F%d %s\x00' % (size, bname)
+        header = 'F%d %s/' % (size, bname)
         if len(header) > self.sendFileBufSize:
             raise ChatException("Header too long, give up")
 
@@ -167,7 +167,7 @@ class MainWindow(QWidget):
 
     def configureWindow(self):
         self.setWindowTitle('Simple Chat Program')
-        self.resize(500, 600)
+        self.resize(700, 600)
         self.center()
 
     def readConfig(self):
@@ -234,35 +234,35 @@ class MainWindow(QWidget):
         self.peers[addr] = page
         self.tab.addTab(page, addr.toString())
 
-    def newActive(self, name, resolve=True):
-        if resolve and name in self.config['friends']:
-            self.buf.info('%s is in friends list, querying...' % name)
+    def newActive(self, peer, resolve=True):
+        if resolve and peer in self.config['friends']:
+            self.buf.info('%s is in friends list, querying...' % peer)
 
             def cb(res):
                 if res == 'n':
-                    self.buf.error('%s is offline' % name)
+                    self.buf.error('%s is offline' % peer)
                 elif res[0].isdigit():
-                    self.buf.info('%s has IP address %s' % (name, res))
+                    self.buf.info('%s has IP address %s' % (peer, res))
                     self.newActive(res, False)
                 else:
-                    self.buf.error('status of %s is unknown' % name)
-            self.talkToCentral('q%s' % name, u'query', r'', cb, False)
+                    self.buf.error('status of %s is unknown' % peer)
+            self.talkToCentral('q%s' % peer, u'query', r'', cb, False)
             return
 
         socket = QTcpSocket()
-        socket.connectToHost(name, PEER_PORT)
+        socket.connectToHost(peer, PEER_PORT)
 
         def onConnected():
-            self.buf.info('Connected to %s' % name)
+            self.buf.info('Connected to %s' % peer)
             self.addPage(socket)
 
         def onError():
             self.buf.error('Error communicating with %s: %s' % (
-                name, socket.errorString()))
+                peer, socket.errorString()))
         socket.connected.connect(onConnected)
         socket.error.connect(onError)
 
-        self.buf.info('Reaching out to %s...' % name)
+        self.buf.info('Reaching out to %s...' % peer)
 
     def talkToCentral(self, msg, name, pattern, cb=None, successMsg=True):
         Name = name.title()
@@ -355,7 +355,7 @@ class MainWindow(QWidget):
 
     readBufSize = 1024
     text_msg_pattern = re.compile(r'^T(\d+) (.*)$', re.S)
-    file_msg_pattern = re.compile(r'^F(\d+) ([^\0]+)\0(.*)$', re.S)
+    file_msg_pattern = re.compile(r'^F(\d+) ([^/]+)/(.*)$', re.S)
 
     def onNewConnection(self):
         socket = self.server.nextPendingConnection()
