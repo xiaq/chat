@@ -1,0 +1,5 @@
+{
+    "friends": ["2010012012", "2010011432"],
+    "autorun": ["/login 2009011457 net2012", "/talk localhost"],
+    "receiveDirectory": "received"
+}
