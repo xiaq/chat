@@ -1,4 +1,5 @@
 #!/bin/sh
+# Polyglot hack to ensure we execute the correct Python.
 ''':'
 pythons='python2.7 python2 python'
 for p in $pythons; do
